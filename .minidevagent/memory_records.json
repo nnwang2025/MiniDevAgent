@@ -1,0 +1,20 @@
+{
+  "records": [
+    {
+      "id": "m-001",
+      "timestamp": "2026-05-28T10:00:00",
+      "kind": "decision",
+      "participants": ["user", "MiniDevAgent"],
+      "entities": ["MiniDevAgent", "SkillRuntime", "ContextManager"],
+      "text": "之前项目方向从继续堆概念改为工程化闭环：让 PlannerAgent、SkillRouter、Skill、ContextManager、AnswerAgent 和 agent_trace 串成可运行、可测试、可写简历的完整流程。"
+    },
+    {
+      "id": "m-002",
+      "timestamp": "2026-05-28T11:00:00",
+      "kind": "decision",
+      "participants": ["user", "MiniDevAgent"],
+      "entities": ["cold memory", "memory chunking"],
+      "text": "记忆方向要求使用 cold memory，并通过 episodic chunk 按时间窗口、topic hint、source_type 聚合，避免只回显 hot memory 最近问题。"
+    }
+  ]
+}

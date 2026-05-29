@@ -1,0 +1,7 @@
+{
+  "relationships": {
+    "PlannerAgent": ["SkillRouter"],
+    "SkillRouter": ["ProjectOverviewSkill", "FunctionExplainSkill", "EntrypointSkill", "DependencyTraceSkill", "MemoryRecallSkill", "ProblemTraceSkill"],
+    "ContextManager": ["AnswerAgent"]
+  }
+}

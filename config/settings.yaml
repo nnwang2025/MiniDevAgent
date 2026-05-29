@@ -1,0 +1,4 @@
+model_name: Qwen/Qwen2.5-32B-Instruct
+tool_only: false
+default_port: 8000
+enable_graph: true

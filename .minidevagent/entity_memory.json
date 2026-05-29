@@ -1,0 +1,7 @@
+{
+  "entities": {
+    "MiniDevAgent": "本地代码工程 Agent，目标是跑通 PlannerAgent -> SkillRouter -> Skill -> ContextManager -> AnswerAgent -> agent_trace 的工程化闭环。",
+    "SkillRuntime": "按任务类型路由到 ProjectOverviewSkill、FunctionExplainSkill、EntrypointSkill、DependencyTraceSkill、MemoryRecallSkill、ProblemTraceSkill。",
+    "cold memory": "持久化记忆来源，包含 memory_records.json、episodic_summaries.json、entity_memory.json、relationship_memory.json。"
+  }
+}
