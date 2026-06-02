@@ -1,4 +1,4 @@
-# MiniDevAgent — 研发团队 AI 值守工程师
+# MiniDevAgent — 基于 PERR 范式的代码工程 Agent Runtime
 
 MiniDevAgent 是一个基于 **PERR（Plan-Execute-Reflect-Refine）范式**的 Hermes-style Agent Runtime，面向研发团队的代码理解、历史追溯与智能值守场景。
 
