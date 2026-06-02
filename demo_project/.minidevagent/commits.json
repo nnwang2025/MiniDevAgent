@@ -1,0 +1,86 @@
+[
+  {
+    "hash": "e4b2a1c8",
+    "author": "alice",
+    "date": "2025-01-10T09:15:00+08:00",
+    "message": "feat: add AuthService with basic login/logout",
+    "files": ["auth.py", "__init__.py"]
+  },
+  {
+    "hash": "f7d3b9e2",
+    "author": "bob",
+    "date": "2025-01-12T14:30:00+08:00",
+    "message": "feat: add DatabaseConnection for user store persistence",
+    "files": ["database.py"]
+  },
+  {
+    "hash": "a1c5e8f3",
+    "author": "alice",
+    "date": "2025-01-15T11:00:00+08:00",
+    "message": "feat: add bootstrap() entry point in main.py",
+    "files": ["main.py"]
+  },
+  {
+    "hash": "b2d6f9a4",
+    "author": "charlie",
+    "date": "2025-01-20T16:45:00+08:00",
+    "message": "feat: add normalize_username() and format_message() utils",
+    "files": ["utils.py"]
+  },
+  {
+    "hash": "c3e7a0b5",
+    "author": "diana",
+    "date": "2025-02-01T10:30:00+08:00",
+    "message": "refactor: extract user_store variable in bootstrap()",
+    "files": ["main.py"]
+  },
+  {
+    "hash": "d4f8b1c6",
+    "author": "bob",
+    "date": "2025-02-14T13:20:00+08:00",
+    "message": "fix: login() accepts empty password — add validation",
+    "files": ["auth.py"]
+  },
+  {
+    "hash": "e5a9c2d7",
+    "author": "alice",
+    "date": "2025-02-15T09:00:00+08:00",
+    "message": "test: add test for empty username/password edge cases",
+    "files": ["test_auth.py"]
+  },
+  {
+    "hash": "f6b0d3e8",
+    "author": "charlie",
+    "date": "2025-02-28T17:00:00+08:00",
+    "message": "fix: DatabaseConnection.connect() timeout not handled",
+    "files": ["database.py"]
+  },
+  {
+    "hash": "a7c1e4f9",
+    "author": "diana",
+    "date": "2025-03-05T11:15:00+08:00",
+    "message": "refactor: improve error message formatting in format_message()",
+    "files": ["utils.py"]
+  },
+  {
+    "hash": "b8d2f5a0",
+    "author": "eve",
+    "date": "2025-03-10T15:45:00+08:00",
+    "message": "fix: AuthService.is_authenticated key error on None user",
+    "files": ["auth.py"]
+  },
+  {
+    "hash": "c9e3a6b1",
+    "author": "bob",
+    "date": "2025-03-15T10:00:00+08:00",
+    "message": "feat: add connection pooling to DatabaseConnection",
+    "files": ["database.py"]
+  },
+  {
+    "hash": "d0f4b7c2",
+    "author": "alice",
+    "date": "2025-03-20T14:00:00+08:00",
+    "message": "docs: add API documentation for auth module",
+    "files": ["auth.py"]
+  }
+]

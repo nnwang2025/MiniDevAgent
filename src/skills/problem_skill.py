@@ -30,7 +30,7 @@ class ProblemTraceSkill(BaseSkill):
         related_records = []
         for record in records:
             statements.append(f"- {record['text']} score={record.get('score')} breakdown={record.get('score_breakdown', {})}")
-            evidence.append(f"{record['kind']} | {'/'.join(record.get('retrieval_methods', []))} | {record['source']} | {record.get('score_breakdown', {})}")
+            evidence.append(f"{record['kind']} | {'/'.join(record.get('retrieval_methods', []))} | {record.get('source', 'ingested')} | {record.get('score_breakdown', {})}")
             related_records.append(record["text"])
         answer = "找到与该问题相关的真实问题证据：\n" + "\n".join(statements)
         return self.ok(

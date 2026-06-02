@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Git
+.git/
+.gitignore
+
+# Environment files with secrets
+.env
+.env.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test / CI
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Agent runtime data (mounted as volume)
+.minidevagent/
+
+# Scripts (smoke tests, not needed in container)
+scripts/

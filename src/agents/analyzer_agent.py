@@ -1,11 +1,48 @@
 from __future__ import annotations
+
 import ast
 from typing import Any
-from ..tools.ast_tools import extract_relevant_snippet, extract_symbol_snippet, extract_symbol_snippet_strict, get_function_skeleton, get_imports, parse_ast
+
+from ..llm_client import LLMClient
+from ..tools.ast_tools import (
+    extract_relevant_snippet,
+    extract_symbol_snippet,
+    extract_symbol_snippet_strict,
+    get_function_skeleton,
+    get_imports,
+    parse_ast,
+)
 from ..tools.file_tools import read_file, summarize_file
+
+ANALYZER_SYSTEM_PROMPT = """你是代码分析专家。给定代码文件内容和用户问题，你需要给出结构化的分析结果。
+
+## 分析要求
+1. 理解代码的职责和设计意图
+2. 识别函数之间的调用关系
+3. 找出与用户问题最相关的代码部分
+4. 使用中文描述，保留代码标识符原文
+
+## 输出格式 (JSON)
+{
+  "summary": "对文件功能的总体概述",
+  "key_findings": ["发现1", "发现2"],
+  "relevant_sections": ["相关的代码片段说明"],
+  "architecture_role": "该文件/模块在项目中的角色",
+  "call_chain": ["被调用的关键函数"]
+}
+"""
 
 
 class AnalyzerAgent:
+    """LLM-driven code analysis agent.
+
+    Primary: LLM analyzes code files with structured output for deeper understanding.
+    Fallback: AST-based extraction of skeletons, imports, calls, and snippets.
+    """
+
+    def __init__(self) -> None:
+        self.llm = LLMClient()
+
     def analyze(
         self,
         project_path: str,
@@ -14,9 +51,11 @@ class AnalyzerAgent:
         plan: dict[str, Any] | None = None,
         exploration: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
+        """Analyze the given files in the context of the question."""
         plan = plan or {}
         exploration = exploration or {}
         task_type = plan.get("task_type", "general_question")
+
         analysis: dict[str, Any] = {
             "task_type": task_type,
             "files": {},
@@ -27,6 +66,7 @@ class AnalyzerAgent:
             "target_area": plan.get("target_area", "") or exploration.get("target_area", ""),
             "planner_reason": plan.get("reason", ""),
         }
+
         if task_type == "project_overview":
             index = exploration.get("index", {})
             analysis["project_index"] = {
@@ -37,37 +77,76 @@ class AnalyzerAgent:
                 return analysis
 
         symbols = analysis["target_symbols"]
+
         for path in file_paths:
+            # AST-based extraction (always available)
             summary = summarize_file(project_path, path)
             skeleton = get_function_skeleton(project_path, path)
             try:
                 imports = get_imports(project_path, path)
             except Exception:
                 imports = []
+
             calls = self._extract_calls(project_path, path)
             focused_snippets: dict[str, str] = {}
             for symbol in symbols[:6]:
                 symbol_snippet = extract_symbol_snippet_strict(project_path, path, symbol)
                 if symbol_snippet:
                     focused_snippets[symbol] = symbol_snippet
+
+            # Determine the best snippet
             if task_type == "function_analysis" and symbols:
                 snippet = extract_symbol_snippet(project_path, path, symbols[0])
             elif task_type in {"architecture_flow", "dependency_trace"} and focused_snippets:
                 snippet = "\n\n".join(focused_snippets.values())
             else:
                 snippet = extract_relevant_snippet(project_path, path, question)
+
+            # LLM-enhanced analysis (if available)
+            llm_analysis = self._llm_analyze_file(project_path, path, question, task_type)
+
             analysis["files"][path] = {
-                "summary": summary,
+                "summary": llm_analysis.get("summary", summary) if llm_analysis else summary,
                 "skeleton": skeleton,
                 "imports": imports,
                 "calls": calls,
-                "architecture_role": self._infer_role(path, skeleton, imports),
+                "architecture_role": (
+                    llm_analysis.get("architecture_role", "")
+                    if llm_analysis else self._infer_role(path, skeleton, imports)
+                ),
                 "snippet": snippet,
                 "focused_snippets": focused_snippets,
+                "llm_key_findings": llm_analysis.get("key_findings", []) if llm_analysis else [],
             }
+
         if task_type in {"architecture_flow", "dependency_trace"}:
             analysis["call_chain"] = self._build_call_chain(analysis["files"])
+
         return analysis
+
+    # ── LLM analysis ─────────────────────────────────────────────
+
+    def _llm_analyze_file(
+        self, project_path: str, path: str, question: str, task_type: str
+    ) -> dict[str, Any] | None:
+        """Use LLM for deeper semantic analysis of a file."""
+        if not self.llm.enabled:
+            return None
+
+        content = read_file(project_path, path)
+        if len(content) > 8000:
+            content = content[:8000] + "\n# ... (文件过长，已截断)"
+
+        user_prompt = (
+            f"## 文件路径\n{path}\n\n"
+            f"## 用户问题\n{question}\n\n"
+            f"## 任务类型\n{task_type}\n\n"
+            f"## 文件内容\n```python\n{content}\n```"
+        )
+        result = self.llm.chat_json(ANALYZER_SYSTEM_PROMPT, user_prompt, timeout=30.0)
+        return result
+
+    # ── AST helpers ──────────────────────────────────────────────
 
     def _extract_calls(self, project_path: str, path: str) -> list[dict[str, Any]]:
         try:

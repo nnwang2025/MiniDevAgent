@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Any
+
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import HTMLResponse
 
@@ -22,9 +24,22 @@ def home() -> str:
 </html>"""
 
 
-@router.get("/health", summary="健康检查")
-def health() -> dict[str, str]:
-    return {"status": "ok", "service": "MiniDevAgent"}
+@router.get("/health", summary="健康检查（含 Redis 状态）")
+def health(request: Request) -> dict[str, Any]:
+    harness = request.app.state.harness
+    redis_status = {"backend": "none", "connected": False}
+    # Check if any active session has a Redis backend
+    for state in harness.sessions.values():
+        if hasattr(state, 'metadata') and state.metadata.get("redis_backend"):
+            redis_status = state.metadata["redis_backend"].health()
+            break
+    return {
+        "status": "ok",
+        "service": "MiniDevAgent",
+        "version": "2.0",
+        "redis": redis_status,
+        "active_sessions": len(harness.sessions),
+    }
 
 
 @router.post("/session/create", summary="创建代码分析会话")

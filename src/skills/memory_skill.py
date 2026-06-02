@@ -34,7 +34,7 @@ class MemoryRecallSkill(BaseSkill):
             when = f"（{record['timestamp']}）" if record.get("timestamp") else ""
             breakdown = record.get("score_breakdown", {})
             lines.append(f"- {record['text']}{when} score={record.get('score')}, breakdown={breakdown}")
-            evidence.append(f"{record['kind']} | {'/'.join(record.get('retrieval_methods', []))} | {record['source']} | {breakdown}")
+            evidence.append(f"{record['kind']} | {'/'.join(record.get('retrieval_methods', []))} | {record.get('source', 'ingested')} | {breakdown}")
             related_records.append(record["text"])
             if record.get("chunk"):
                 chunks.append(record["chunk"])

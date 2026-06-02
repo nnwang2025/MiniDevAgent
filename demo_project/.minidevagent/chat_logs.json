@@ -1,0 +1,75 @@
+[
+  {
+    "id": "msg-001",
+    "channel": "backend-team",
+    "author": "alice",
+    "text": "刚 code review 发现 login() 没有任何参数校验，传空字符串也能登录。这个谁加的？",
+    "timestamp": "2025-02-13T08:45:00+08:00",
+    "mentions": ["bob"],
+    "thread_replies": [
+      {"author": "bob", "text": "是我 1 月初写的那个版本。当时为了快速上线 demo，没加校验。", "timestamp": "2025-02-13T08:50:00+08:00"},
+      {"author": "alice", "text": "这个得赶紧修，安全漏洞。我让 diana 建个 issue。", "timestamp": "2025-02-13T08:52:00+08:00"},
+      {"author": "bob", "text": "OK 我来修。加个 if not username or not password 就行。", "timestamp": "2025-02-13T08:55:00+08:00"}
+    ]
+  },
+  {
+    "id": "msg-002",
+    "channel": "backend-team",
+    "author": "eve",
+    "text": "部署到 staging 的时候数据库连接超时了，有人遇到过吗？错误信息是 socket.timeout",
+    "timestamp": "2025-02-25T15:30:00+08:00",
+    "mentions": ["charlie"],
+    "thread_replies": [
+      {"author": "charlie", "text": "我怀疑是多个 worker 同时启动时连接数爆了。默认 timeout 5 秒可能不够。", "timestamp": "2025-02-25T15:35:00+08:00"},
+      {"author": "bob", "text": "我们这个项目以后要不要加连接池？每次新连接太浪费了。", "timestamp": "2025-02-25T15:40:00+08:00"},
+      {"author": "charlie", "text": "好主意，先修 timeout + 重试，连接池开个单独的 issue 做。", "timestamp": "2025-02-25T15:42:00+08:00"}
+    ]
+  },
+  {
+    "id": "msg-003",
+    "channel": "backend-team",
+    "author": "diana",
+    "text": "bootstrap() 里面 user_store 直接写在参数里，可读性太差了，谁有空重构一下？",
+    "timestamp": "2025-01-28T09:30:00+08:00",
+    "mentions": [],
+    "thread_replies": [
+      {"author": "charlie", "text": "同意。我建个 issue，你来重构？你是最喜欢 clean code 的。", "timestamp": "2025-01-28T09:35:00+08:00"},
+      {"author": "diana", "text": "行，我顺便把失败判断改成 early return，现在那个嵌套 if 看着难受。", "timestamp": "2025-01-28T09:40:00+08:00"}
+    ]
+  },
+  {
+    "id": "msg-004",
+    "channel": "backend-team",
+    "author": "alice",
+    "text": "新来的同学问个事：bootstrap() 是应用入口吗？整个启动流程是什么样的？",
+    "timestamp": "2025-03-01T10:00:00+08:00",
+    "mentions": [],
+    "thread_replies": [
+      {"author": "bob", "text": "对，main.py 的 bootstrap() 是入口。流程：连接数据库 → 创建 AuthService → 用 normalize_username 处理用户名 → login 认证 → is_authenticated 检查 → format_message 输出结果。", "timestamp": "2025-03-01T10:05:00+08:00"},
+      {"author": "alice", "text": "补充一下：database.py 有 get_default_connection() 工厂函数，auth.py 的 AuthService 依赖 user_store 字典。整体是依赖注入风格。", "timestamp": "2025-03-01T10:10:00+08:00"}
+    ]
+  },
+  {
+    "id": "msg-005",
+    "channel": "backend-team",
+    "author": "charlie",
+    "text": "login() 那个空密码漏洞的修复方案是什么来着？我在写周报需要引用。",
+    "timestamp": "2025-02-20T16:00:00+08:00",
+    "mentions": ["bob"],
+    "thread_replies": [
+      {"author": "bob", "text": "ISS-101。在 login() 第一行加了 if not username or not password: return False。commit d4f8b1c6。", "timestamp": "2025-02-20T16:05:00+08:00"},
+      {"author": "diana", "text": "我验证过了，现在空密码直接返回 False，不会走到 user_store 比较。", "timestamp": "2025-02-20T16:08:00+08:00"}
+    ]
+  },
+  {
+    "id": "msg-006",
+    "channel": "backend-team",
+    "author": "eve",
+    "text": "话说 normalize_username() 在哪个文件里？utils.py 还是 main.py？我在做文档。",
+    "timestamp": "2025-03-12T11:00:00+08:00",
+    "mentions": [],
+    "thread_replies": [
+      {"author": "charlie", "text": "utils.py。我加的，和 format_message() 放一起的。", "timestamp": "2025-03-12T11:02:00+08:00"}
+    ]
+  }
+]

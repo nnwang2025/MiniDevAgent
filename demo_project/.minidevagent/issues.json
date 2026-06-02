@@ -1,0 +1,70 @@
+[
+  {
+    "id": "ISS-101",
+    "title": "login() accepts empty password and authenticates successfully",
+    "description": "在生产环境中发现用户可以传空字符串作为密码登录。login('alice', '') 返回 True，因为 user_store.get 能找到用户且空字符串 == 空字符串的比较可能绕过密码校验。这是一个严重的安全漏洞。",
+    "status": "resolved",
+    "resolution": "在 login() 方法开头增加空用户名和空密码的显式校验：if not username or not password: return False。由 bob 在 commit d4f8b1c6 中修复。",
+    "author": "diana",
+    "assignee": "bob",
+    "labels": ["bug", "security", "p0"],
+    "related_files": ["auth.py"],
+    "created": "2025-02-13T09:00:00+08:00",
+    "resolved": "2025-02-14T13:20:00+08:00",
+    "comments": [
+      {"author": "alice", "text": "This is critical. We need to fix this before the next release.", "timestamp": "2025-02-13T09:15:00+08:00"},
+      {"author": "bob", "text": "I'll add a guard clause at the beginning of login(). The empty string comparison issue is Python-specific.", "timestamp": "2025-02-13T09:30:00+08:00"},
+      {"author": "diana", "text": "Verified the fix works. Login with empty credentials now returns False.", "timestamp": "2025-02-14T14:00:00+08:00"}
+    ]
+  },
+  {
+    "id": "ISS-102",
+    "title": "Database connection timeout when service starts under load",
+    "description": "在生产部署时，当多个 worker 同时启动，DatabaseConnection.connect() 会超时。error 日志显示 socket.timeout，但没有重试逻辑。",
+    "status": "resolved",
+    "resolution": "在 connect() 方法中加入 3 次重试逻辑，每次间隔 1 秒。同时将默认 timeout 从 5 秒增加到 15 秒。由 charlie 在 commit f6b0d3e8 中修复。",
+    "author": "eve",
+    "assignee": "charlie",
+    "labels": ["bug", "reliability"],
+    "related_files": ["database.py"],
+    "created": "2025-02-25T16:00:00+08:00",
+    "resolved": "2025-02-28T17:00:00+08:00",
+    "comments": [
+      {"author": "charlie", "text": "Reproduced locally by simulating concurrent connections. The root cause is the default 5-second socket timeout being too aggressive.", "timestamp": "2025-02-26T10:00:00+08:00"},
+      {"author": "bob", "text": "Should we also add connection pooling for this? Otherwise we keep creating new connections.", "timestamp": "2025-02-26T11:00:00+08:00"},
+      {"author": "charlie", "text": "Good point. Let me fix the timeout first, and open a separate issue for pooling.", "timestamp": "2025-02-26T11:30:00+08:00"}
+    ]
+  },
+  {
+    "id": "ISS-103",
+    "title": "is_authenticated() throws KeyError when user dict missing keys",
+    "description": "如果传入 is_authenticated() 的 user dict 没有 'username' 或 'password' 键，函数抛出 KeyError 而非返回 False。这会导致整个请求失败。",
+    "status": "resolved",
+    "resolution": "使用 dict.get() 替代直接键访问，给缺失键提供默认值 None。由 eve 在 commit b8d2f5a0 中修复。",
+    "author": "alice",
+    "assignee": "eve",
+    "labels": ["bug", "defensive-programming"],
+    "related_files": ["utils.py"],
+    "created": "2025-03-08T14:00:00+08:00",
+    "resolved": "2025-03-10T15:45:00+08:00",
+    "comments": [
+      {"author": "eve", "text": "This is a defensive programming issue. We should use .get() with defaults.", "timestamp": "2025-03-09T09:00:00+08:00"}
+    ]
+  },
+  {
+    "id": "ISS-104",
+    "title": "bootstrap() function has confusing variable naming",
+    "description": "bootstrap() 中内联了 user_store 字典字面量，导致代码可读性差。变量命名也不够清晰。建议重构。",
+    "status": "resolved",
+    "resolution": "提取 user_store 变量到独立赋值语句。将验证逻辑改为 early-return 模式，减少嵌套。",
+    "author": "charlie",
+    "assignee": "diana",
+    "labels": ["refactor", "code-quality"],
+    "related_files": ["main.py"],
+    "created": "2025-01-28T10:00:00+08:00",
+    "resolved": "2025-02-01T10:30:00+08:00",
+    "comments": [
+      {"author": "diana", "text": "Agreed. I'll extract user_store and use early return for the auth failure case.", "timestamp": "2025-01-28T11:00:00+08:00"}
+    ]
+  }
+]

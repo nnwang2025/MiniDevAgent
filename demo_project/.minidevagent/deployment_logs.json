@@ -1,0 +1,82 @@
+[
+  {
+    "id": "log-001",
+    "level": "ERROR",
+    "service": "auth-api",
+    "message": "TypeError: 'NoneType' object is not subscriptable",
+    "traceback": "Traceback (most recent call last):\n  File \"auth.py\", line 42, in login\n    user = self.user_store.get(username)\n  File \"auth.py\", line 28, in is_authenticated\n    return bool(user and user.get(\"password\") == password)\nAttributeError: 'NoneType' object has no attribute 'get'\n  File \"main.py\", line 15, in bootstrap\n    authorized = auth.login(user[\"username\"], user[\"password\"])",
+    "timestamp": "2025-02-13T10:05:00+08:00",
+    "environment": "production",
+    "resolved_by_commit": "d4f8b1c6"
+  },
+  {
+    "id": "log-002",
+    "level": "ERROR",
+    "service": "auth-api",
+    "message": "socket.timeout: timed out",
+    "traceback": "Traceback (most recent call last):\n  File \"database.py\", line 18, in connect\n    self.connection = socket.create_connection((host, port), timeout=5)\nsocket.timeout: timed out",
+    "timestamp": "2025-02-25T15:20:00+08:00",
+    "environment": "staging",
+    "resolved_by_commit": "f6b0d3e8"
+  },
+  {
+    "id": "log-003",
+    "level": "ERROR",
+    "service": "auth-api",
+    "message": "KeyError: 'username'",
+    "traceback": "Traceback (most recent call last):\n  File \"auth.py\", line 28, in is_authenticated\n    user.get(\"password\") == password\nKeyError: 'username'",
+    "timestamp": "2025-03-08T13:45:00+08:00",
+    "environment": "production",
+    "resolved_by_commit": "b8d2f5a0"
+  },
+  {
+    "id": "log-004",
+    "level": "WARNING",
+    "service": "auth-api",
+    "message": "Login attempt with empty username from IP 192.168.1.100",
+    "traceback": "",
+    "timestamp": "2025-03-20T08:30:00+08:00",
+    "environment": "production",
+    "resolved_by_commit": ""
+  },
+  {
+    "id": "log-005",
+    "level": "INFO",
+    "service": "auth-api",
+    "message": "Service deployed successfully: version 2.1.0, connection pool enabled",
+    "traceback": "",
+    "timestamp": "2025-03-15T10:30:00+08:00",
+    "environment": "production",
+    "resolved_by_commit": "c9e3a6b1"
+  },
+  {
+    "id": "log-006",
+    "level": "INFO",
+    "service": "auth-api",
+    "message": "Database connection pool initialized with max_size=10",
+    "traceback": "",
+    "timestamp": "2025-03-15T10:31:00+08:00",
+    "environment": "production",
+    "resolved_by_commit": "c9e3a6b1"
+  },
+  {
+    "id": "log-007",
+    "level": "ERROR",
+    "service": "auth-api",
+    "message": "Authentication failed for user 'alice': password mismatch",
+    "traceback": "",
+    "timestamp": "2025-03-21T14:22:00+08:00",
+    "environment": "production",
+    "resolved_by_commit": ""
+  },
+  {
+    "id": "log-008",
+    "level": "WARNING",
+    "service": "auth-api",
+    "message": "High auth failure rate detected: 15 failures in last 5 minutes",
+    "traceback": "",
+    "timestamp": "2025-03-21T14:25:00+08:00",
+    "environment": "production",
+    "resolved_by_commit": ""
+  }
+]

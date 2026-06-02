@@ -1,0 +1,81 @@
+version: "3.8"
+
+services:
+  # ── Redis: 会话记忆持久化 + 多进程共享 ──────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: minidevagent-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+
+  # ── MiniDevAgent API 服务 ──────────────────────────────────
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: minidevagent-api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      # 挂载 demo 项目（含预制历史数据）
+      - ./demo_project:/app/demo_project:ro
+      # 持久化 cold memory 与 patch history
+      - agent_data:/app/.minidevagent
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - OPENAI_BASE_URL=${OPENAI_BASE_URL:-https://api.siliconflow.cn/v1}
+      - MODEL_NAME=${MODEL_NAME:-Qwen/Qwen3-8B}
+      # Redis 连接
+      - REDIS_URL=redis://redis:6379/0
+      - REDIS_ENABLED=true
+      # 可选：启用 LLM 回答润色
+      - ENABLE_LLM_ANSWER=${ENABLE_LLM_ANSWER:-true}
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  # ── CLI 交互模式（按需启动，不用时保持 stopped）────────────
+  cli:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: minidevagent-cli
+    stdin_open: true
+    tty: true
+    profiles:
+      - cli
+    volumes:
+      - ./demo_project:/app/demo_project:ro
+      - agent_data:/app/.minidevagent
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - OPENAI_BASE_URL=${OPENAI_BASE_URL:-https://api.siliconflow.cn/v1}
+      - MODEL_NAME=${MODEL_NAME:-Qwen/Qwen3-8B}
+      - REDIS_URL=redis://redis:6379/0
+      - REDIS_ENABLED=true
+    depends_on:
+      redis:
+        condition: service_healthy
+    command: python src/main.py demo_project --trace
+
+volumes:
+  redis_data:
+    driver: local
+  agent_data:
+    driver: local
